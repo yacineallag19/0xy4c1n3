@@ -12,8 +12,6 @@ categories: ["CTF Writeups"]
 
 ![Challenge Image](https://cdn-images-1.medium.com/max/1200/1*CiYOElU76D1vhNLUu1ItXg.jpeg)
 
-## WorldWide CTF "Faulty Curve" Challenge Writeup (Cryptography)
-
 ### **Challenge Overview**
 
 -   CTF: WorldWide CTF 2025
