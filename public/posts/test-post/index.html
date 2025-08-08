@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Test Post | 0xy4c1n3</title>
+<meta name="keywords" content="CTF, Cryptography, writeups, ECC, Cyber Security">
+<meta name="description" content="
+
+WorldWide CTF &ldquo;Faulty Curve&rdquo; Challenge Writeup (Cryptography)
+Challenge Overview
+
+CTF: WorldWide CTF 2025
+Challenge: Faulty Curve
+Category: Cryptography
+Points: 436
+Author: Warri
+Description:
+
+
+ECDLP is so fun to write! Except sagemath seems to break for mine upon initialisation, guess I&rsquo;ll have to do everything in python… Note: The sagemath error in question can be traced in the latest version of sage
+
+Source Code: chall.py
+
+
+Introduction
+This write-up details the solution to the Faulty Curve cryptography challenge from WorldWideCTF, which exploits the curve&rsquo;s singularity to decrypt ECC-based ciphers. We demonstrate how the singular elliptic curve vulnerability allows decryption by reducing the discrete logarithm problem to a trivial linear equation. This write-up will be beginner-friendly and explain everything in detail. We&rsquo;ll start with how elliptic curves work, then walk through how our team TroJeun solved this challenge.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/test-post/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/test-post/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="0xy4c1n3 (Alt + H)">0xy4c1n3</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Test Post
+    </h1>
+    <div class="post-meta"><span title='2025-08-08 09:52:05 +0100 CET'>August 8, 2025</span>
+
+</div>
+  </header> 
+  <div class="post-content"><hr>
+<p><img alt="Challenge Image" loading="lazy" src="https://cdn-images-1.medium.com/max/1200/1*CiYOElU76D1vhNLUu1ItXg.jpeg"></p>
+<h2 id="worldwide-ctf-faulty-curve-challenge-writeup-cryptography">WorldWide CTF &ldquo;Faulty Curve&rdquo; Challenge Writeup (Cryptography)<a hidden class="anchor" aria-hidden="true" href="#worldwide-ctf-faulty-curve-challenge-writeup-cryptography">#</a></h2>
+<h3 id="challenge-overview"><strong>Challenge Overview</strong><a hidden class="anchor" aria-hidden="true" href="#challenge-overview">#</a></h3>
+<ul>
+<li>CTF: WorldWide CTF 2025</li>
+<li>Challenge: Faulty Curve</li>
+<li>Category: Cryptography</li>
+<li>Points: 436</li>
+<li>Author: Warri</li>
+<li>Description:</li>
+</ul>
+<blockquote>
+<p><strong>ECDLP is so fun to write! Except sagemath seems to break for mine upon initialisation, guess I&rsquo;ll have to do everything in python…</strong> <strong>Note: The sagemath error in question can be traced in the latest version of sage</strong></p></blockquote>
+<ul>
+<li>Source Code: <a href="https://pastebin.com/GEHiBpgb">chall.py</a></li>
+</ul>
+<hr>
+<h3 id="introduction"><strong>Introduction</strong><a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h3>
+<p>This write-up details the solution to the <strong>Faulty Curve</strong> cryptography challenge from <strong>WorldWideCTF</strong>, which exploits the <strong>curve&rsquo;s singularity</strong> to decrypt <strong>ECC-based ciphers</strong>. We demonstrate how the singular elliptic curve vulnerability allows decryption by reducing the <strong>discrete logarithm problem</strong> to a <strong>trivial</strong> linear equation. This write-up will be beginner-friendly and explain everything in detail. We&rsquo;ll start with how elliptic curves work, then walk through how our team <strong>TroJeun</strong> solved this challenge.</p>
+<hr>
+<h3 id="introduction-to-elliptic-curves"><strong>Introduction To Elliptic Curves</strong><a hidden class="anchor" aria-hidden="true" href="#introduction-to-elliptic-curves">#</a></h3>
+<p>Cryptography&rsquo;s history is divided into <strong>classical</strong> and <strong>modern</strong> eras, with the shift marked in 1977 by the introduction of <strong>RSA</strong> and <strong>Diffie-Hellman</strong>. These algorithms were groundbreaking as they enabled secure communication <strong>without a shared secret</strong>, relying on number theory rather than secret codebooks for security. Modern cryptography is based on the idea that encryption keys can be public while decryption keys remain private. These systems are called public key cryptographic systems.</p>
+<p>After RSA and Diffie-Hellman, researchers sought other math-based cryptographic methods, leading to elliptic curve cryptography in 1985, based on a lesser-known area of mathematics.</p>
+<p>An elliptic curve is a set of points that satisfy an equation of the form:<br>
+<strong>y² = x³ + ax + b</strong>, which will make the set of points give a graph similar to this:</p>
+<p><img alt="Elliptic Curve Graph" loading="lazy" src="https://cdn-images-1.medium.com/max/800/1*hhP0Ur8c6bN8XnTHPkCr7Q.png"></p>
+<p><em>An Elliptic Curve with the equation: <strong>y² = x³ + 0.5x + 4</strong></em></p>
+<h4 id="elliptic-curves-properties">Elliptic Curves Properties:<a hidden class="anchor" aria-hidden="true" href="#elliptic-curves-properties">#</a></h4>
+<ul>
+<li>The curve is symmetric about the x-axis, meaning if a point <code>(x, y)</code> is on the curve, then <code>(x, -y)</code> is also on the curve.</li>
+<li>Any non-vertical line drawn through the curve will intersect it at most three points.</li>
+<li>Take any two points A and B on the curve and draw a line through them, it will intersect the curve at exactly one more point C, reflecting this point over the x-axis gives -C (either straight up if it&rsquo;s below the x-axis or straight down if it&rsquo;s above the x-axis to the other side of the curve). The transformation from A,B to -C is often noted as <strong>dot</strong>: <strong>A dot B = -C</strong></li>
+<li>We can also do: A dot A which will give us a point B, and that leads us to this conclusion:</li>
+</ul>
+<blockquote>
+<p><em>if we do: A dot A = B then A dot B = C and we repeat the process n times till we get a point P, it is very difficult to tell what value is n using only the starting point A and the final point P. This problem is called the discrete logarithm problem</em></p></blockquote>
+<p>Although these properties hold for all real numbers, in cryptography we restrict the calculations to integers within a fixed range, similar to RSA, calculations wrap around a prime number, forming a <em>prime curve</em> with strong cryptographic properties, which will give this new formula: <strong>y² = x³ + ax + b (mod p)</strong> where p is a prime (preferably <strong>large</strong>), this formula is the base of Elliptic Curves Cryptography</p>
+<p>Given that, if we want to encrypt information using this cryptosystem, we will need:</p>
+<ul>
+<li>A large prime <strong>p (known to both sender and receiver)</strong></li>
+<li>Curve parameters <strong>a</strong> &amp; <strong>b (known to both sender and receiver)</strong></li>
+<li>A <strong>base point G</strong> (must be on the curve) <strong>(known to both sender and receiver)</strong></li>
+<li>A random large prime <strong>q</strong>: <strong>The private key (only receiver knows it)</strong></li>
+</ul>
+<p>The public key <strong>Q</strong> will be: G dotting itself <strong>q times (known to both sender and receiver)</strong></p>
+<p>Given a point M (there are many ways to map a message to a point M but it shouldn&rsquo;t be our concern for now), these are the steps used to encrypt a message and get it back:</p>
+<ol>
+<li>Sender picks a random number k ≤ p.</li>
+<li>Sender computes: C1 = kG and C2 = m+kQ.</li>
+<li>Sender sends (C1,C2).</li>
+<li>Receiver computes: qC1 = q(kG) = k(qG) = kQ.</li>
+<li>Receiver recovers the message M = C2​−dC1​=M+kQ−kQ=M.</li>
+<li>Receiver should map back M to m.</li>
+</ol>
+<p>Now that we have an idea of how Elliptic Curves Cryptography works, we can move to our challenge writeup.</p>
+<hr>
+<h3 id="initial-analysis"><strong>Initial Analysis</strong><a hidden class="anchor" aria-hidden="true" href="#initial-analysis">#</a></h3>
+<p>We start by reading the source code for this challenge, first there are 2 functions <strong>add</strong> and <strong>mul</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(P, Q, a, p):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> P <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Q
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> Q <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> P
+</span></span><span style="display:flex;"><span>    x1, y1 <span style="color:#f92672">=</span> P
+</span></span><span style="display:flex;"><span>    x2, y2 <span style="color:#f92672">=</span> Q
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> x1 <span style="color:#f92672">==</span> x2 <span style="color:#f92672">and</span> (y1 <span style="color:#f92672">!=</span> y2 <span style="color:#f92672">or</span> y1 <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> x1 <span style="color:#f92672">==</span> x2:
+</span></span><span style="display:flex;"><span>        m <span style="color:#f92672">=</span> (<span style="color:#ae81ff">3</span> <span style="color:#f92672">*</span> x1 <span style="color:#f92672">*</span> x1 <span style="color:#f92672">+</span> a) <span style="color:#f92672">*</span> pow(<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> y1, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, p) <span style="color:#f92672">%</span> p
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        m <span style="color:#f92672">=</span> (y2 <span style="color:#f92672">-</span> y1) <span style="color:#f92672">*</span> pow(x2 <span style="color:#f92672">-</span> x1, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, p) <span style="color:#f92672">%</span> p
+</span></span><span style="display:flex;"><span>    x3 <span style="color:#f92672">=</span> (m <span style="color:#f92672">*</span> m <span style="color:#f92672">-</span> x1 <span style="color:#f92672">-</span> x2) <span style="color:#f92672">%</span> p
+</span></span><span style="display:flex;"><span>    y3 <span style="color:#f92672">=</span> (m <span style="color:#f92672">*</span> (x1 <span style="color:#f92672">-</span> x3) <span style="color:#f92672">-</span> y1) <span style="color:#f92672">%</span> p
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (x3, y3)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">mul</span>(k, P, a, p):
+</span></span><span style="display:flex;"><span>    R0 <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    R1 <span style="color:#f92672">=</span> P
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> bit <span style="color:#f92672">in</span> bin(k)[<span style="color:#ae81ff">2</span>:]:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> bit <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>:
+</span></span><span style="display:flex;"><span>            R1 <span style="color:#f92672">=</span> add(R0, R1, a, p)
+</span></span><span style="display:flex;"><span>            R0 <span style="color:#f92672">=</span> add(R0, R0, a, p)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            R0 <span style="color:#f92672">=</span> add(R0, R1, a, p)
+</span></span><span style="display:flex;"><span>            R1 <span style="color:#f92672">=</span> add(R1, R1, a, p)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> R0
+</span></span></code></pre></div><p>The two functions implement point addition and scalar multiplication on elliptic curves over a finite field. While they are functionally correct for standard use cases, the implementations are not optimized for constant-time execution, which may expose them to timing-based side-channel attacks. These potential vulnerabilities should be considered in future stages of our analysis when reviewing the rest of the source code.</p>
+<p>Then we have this part:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>flag <span style="color:#f92672">=</span> int<span style="color:#f92672">.</span>from_bytes(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;wwf{???????????????????????????}&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> secret <span style="color:#f92672">import</span> p, a, b, G
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># EllipticCurve(GF(p), [a,b]) in sage gives an error for some reason :sob:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Some error in /src/sage/schemes/elliptic_curves but i&#39;m too nub to figure out why :sob: :sob:</span>
+</span></span><span style="display:flex;"><span>Gx <span style="color:#f92672">=</span> G[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>Qx <span style="color:#f92672">=</span> mul(flag, G, a, p)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>p <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>a <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>Gx <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>Qx <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">p = 3059506932006842768669313045979965122802573567548630439761719809964279577239571933
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">a = 2448848303492708630919982332575904911263442803797664768836842024937962142592572096
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Gx = 3
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Qx = 1461547606525901279892022258912247705593987307619875233742411837094451720970084133
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span></code></pre></div><p>First, it maps the flag bytes into an integer. Then, it imports the prime <strong>p</strong>, the curve parameters <strong>a</strong> and <strong>b</strong>, and the base point <strong>G</strong>.<br>
+Afterward, we notice a sort of indication of an error that occurred:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># EllipticCurve(GF(p), [a,b]) in sage gives an error for some reason :sob:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Some error in /src/sage/schemes/elliptic_curves but i&#39;m too nub to figure out why :sob: :sob:</span>
+</span></span></code></pre></div><p>While the author claimed he didn&rsquo;t want to debug it, we will definitely inspect it. Let&rsquo;s try googling: <code>EllipticCurve(GF(p), [a, b])</code> errors and see what comes up:</p>
+<p><img alt="Google Search Results" loading="lazy" src="https://cdn-images-1.medium.com/max/800/1*zy-_KHxPpU1gCfRbT6uNKg.png"></p>
+<p>According to Gemini, the error must be due to one of the following reasons:</p>
+<ul>
+<li>Incorrect curve parameters <strong>a</strong> and <strong>b</strong>: not likely in this case.</li>
+<li>The curve is <strong>singular</strong>, meaning it is vulnerable and satisfies the singularity condition:</li>
+</ul>
+<p><img alt="Singularity Condition" loading="lazy" src="https://cdn-images-1.medium.com/max/800/1*WcUR52K4xjmOs1HyHf8xyA.png"></p>
+<ul>
+<li>p is not a prime, <strong>but this is not true.</strong></li>
+</ul>
+<p>Therefore, we can assume for now that the error stems from the curve being singular, which we will discuss further after completing our initial analysis.</p>
+<p>Now, let&rsquo;s continue analyzing the rest of the source code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>Gx <span style="color:#f92672">=</span> G[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>Qx <span style="color:#f92672">=</span> mul(flag, G, a, p)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>p <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>a <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>Gx <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>Qx <span style="color:#e6db74">= }</span><span style="color:#e6db74">&#39;</span>)
+</span></span></code></pre></div><p>Here, <code>Gx</code> is the x-coordinate of the base point <strong>G</strong>, and <code>Qx</code> is the x-coordinate of <strong>Q=flag⋅G</strong>, in other words, <strong>G</strong> was multiplied (dotted) by <code>flag</code> to obtain <strong>Q</strong>.</p>
+<p>The values we have are <strong>p</strong>, <strong>a</strong>, <strong>Gx</strong> and <strong>Qx</strong>, we don&rsquo;t have <strong>b</strong>. While we don&rsquo;t have the value of <strong>b</strong>, we must remember that the curve is assumed to be <strong>singular</strong>, which means it satisfies the following condition:</p>
+<p><img alt="Singularity Formula" loading="lazy" src="https://cdn-images-1.medium.com/max/800/1*WcUR52K4xjmOs1HyHf8xyA.png"></p>
+<p>Given that we can calculate the b values that will verify the equation.</p>
+<hr>
+<h3 id="singular-curves"><strong>Singular Curves</strong><a hidden class="anchor" aria-hidden="true" href="#singular-curves">#</a></h3>
+<p>A <strong>singular</strong> curve is a curve that has a null discriminant, thus the polynomial <strong>x³ + ax + b</strong> has a double or triple root <strong>r</strong>. This gives us one of the 2 equations here: <strong>x³ + ax + b = (x-r)³</strong> or <strong>x³ + ax + b = (x-r)²(x-k)</strong>.</p>
+<p>Using a change of variable t = x + r we get:</p>
+<p><strong>x³ + ax + b = t³</strong> or <strong>x³ + ax + b = t²(x-k)</strong></p>
+<p>For the first case it is trivial to solve the discrete logarithm problem since it will be just a <em>simple division</em> in a finite field, and for the 2nd case, it is not that trivial but it is still much faster than the usual discrete logarithm problem since it becomes a <em>finite-field logarithm</em>.</p>
+<p>With that said, the overall steps to solve the challenge became clear:</p>
+<ol>
+<li>Calculate b values that will satisfy the equation.</li>
+<li>Solve the <em>discrete logarithm</em>: <strong>Q = flag.G</strong>.</li>
+<li>Map the flag back to an integer.</li>
+</ol>
+<hr>
+<h3 id="step-1-solving-the-equation-for-b"><strong>Step 1: Solving the equation for b</strong><a hidden class="anchor" aria-hidden="true" href="#step-1-solving-the-equation-for-b">#</a></h3>
+<p>To solve the equation we must follow these steps:</p>
+<p><img alt="Formula Steps" loading="lazy" src="https://cdn-images-1.medium.com/max/800/1*QZ_nrG8VBVcEFYnvprsKAQ.png"></p>
+<p>And here goes the sage implementation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Find possible b values (that make the curve singular)</span>
+</span></span><span style="display:flex;"><span>F <span style="color:#f92672">=</span> GF(p)
+</span></span><span style="display:flex;"><span>a_cubed <span style="color:#f92672">=</span> F(a)<span style="color:#f92672">^</span><span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>rhs <span style="color:#f92672">=</span> (<span style="color:#f92672">-</span><span style="color:#ae81ff">4</span> <span style="color:#f92672">*</span> a_cubed) <span style="color:#f92672">*</span> F(<span style="color:#ae81ff">27</span>)<span style="color:#f92672">^</span>(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>b_solutions <span style="color:#f92672">=</span> rhs<span style="color:#f92672">.</span>sqrt(all<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Possible values for b: </span><span style="color:#e6db74">{</span>b_solutions<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>This gave the following output:</p>
+<pre tabindex="0"><code>Possible values for b: [824668140588526362183895500628724475752920839323887328536605261185064403017929521, 2234838791418316406485417545351240647049652728224743111225114548779215174221642412]
+</code></pre><hr>
+<h3 id="step-2-exploitation"><strong>Step 2: Exploitation</strong><a hidden class="anchor" aria-hidden="true" href="#step-2-exploitation">#</a></h3>
+<p>Now that we have a set of possible <strong>b</strong> values, our next step is to solve the <em>discrete logarithm problem</em>, which is known to be significantly easier on this curve due to its singularity.</p>
+<p>However, with the values we currently have, it won&rsquo;t be possible to solve the discrete logarithm problem, since we only have the x-coordinate of the base point <strong>G</strong> (i.e., the starting point) and the x-coordinate of the public key <strong>Q</strong> (i.e., the final point). To proceed, we need to find a way to determine the <strong>y-coordinates</strong> of both points.</p>
+<h4 id="finding-the-y-coordinates">Finding the y-coordinates<a hidden class="anchor" aria-hidden="true" href="#finding-the-y-coordinates">#</a></h4>
+<p>We have this equation: <strong>y²=x³ + ax + b</strong></p>
+<p>We can plug in both values Gx, Qx in that equation and we would get:</p>
+<p><strong>RHS1 = Gx³ + aGx + b</strong></p>
+<p><strong>RHS2 = Qx³ + aQx + b</strong></p>
+<p>If <strong>RHS1</strong> and <strong>RHS2</strong> are quadratic residues in the finite field, then we would get two possible y-coordinates for each of the two points, therefore, two possible points for each.</p>
+<p>Here comes the sage implementation for this matter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># y-coordinates candidates</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_y_candidates</span>(x, a, b):
+</span></span><span style="display:flex;"><span>    rhs <span style="color:#f92672">=</span> x<span style="color:#f92672">^</span><span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> a<span style="color:#f92672">*</span>x <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [rhs<span style="color:#f92672">.</span>sqrt(), <span style="color:#f92672">-</span>rhs<span style="color:#f92672">.</span>sqrt()] <span style="color:#66d9ef">if</span> rhs<span style="color:#f92672">.</span>is_square() <span style="color:#66d9ef">else</span> []
+</span></span></code></pre></div><p>Now all we have left to brute force, and solve the DLP, we can write our own exploit for that but we will just use a script that is available online, I used this one: <a href="https://github.com/elikaski/ECC_Attacks/blob/main/code/ECDH%20Attacks/singular_curve.sage">attack link</a></p>
+<p>Of course we can&rsquo;t use the script as it is, we will have to do some small changes since we will have to brute force <strong>Qy</strong>, <strong>Gy</strong> and <strong>b</strong> values. I don&rsquo;t think it&rsquo;s needed to explain how we will change it since it is obvious.</p>
+<p>And this will give us the final script solver:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> Crypto.Util.number <span style="color:#f92672">import</span> long_to_bytes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Given values</span>
+</span></span><span style="display:flex;"><span>p <span style="color:#f92672">=</span> <span style="color:#ae81ff">3059506932006842768669313045979965122802573567548630439761719809964279577239571933</span>
+</span></span><span style="display:flex;"><span>a <span style="color:#f92672">=</span> <span style="color:#ae81ff">2448848303492708630919982332575904911263442803797664768836842024937962142592572096</span>
+</span></span><span style="display:flex;"><span>Gx <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>Qx <span style="color:#f92672">=</span> <span style="color:#ae81ff">1461547606525901279892022258912247705593987307619875233742411837094451720970084133</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>F <span style="color:#f92672">=</span> GF(p)
+</span></span><span style="display:flex;"><span>a <span style="color:#f92672">=</span> F(a)
+</span></span><span style="display:flex;"><span>Gx <span style="color:#f92672">=</span> F(Gx)
+</span></span><span style="display:flex;"><span>Qx <span style="color:#f92672">=</span> F(Qx)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Find possible b values (that make the curve singular)</span>
+</span></span><span style="display:flex;"><span>a_cubed <span style="color:#f92672">=</span> a<span style="color:#f92672">^</span><span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>rhs <span style="color:#f92672">=</span> (<span style="color:#f92672">-</span><span style="color:#ae81ff">4</span> <span style="color:#f92672">*</span> a_cubed) <span style="color:#f92672">*</span> F(<span style="color:#ae81ff">27</span>)<span style="color:#f92672">^</span>(<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>b_solutions <span style="color:#f92672">=</span> rhs<span style="color:#f92672">.</span>sqrt(all<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># y candidates</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_y_candidates</span>(x, a, b):
+</span></span><span style="display:flex;"><span>    rhs <span style="color:#f92672">=</span> x<span style="color:#f92672">^</span><span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> a<span style="color:#f92672">*</span>x <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [rhs<span style="color:#f92672">.</span>sqrt(), <span style="color:#f92672">-</span>rhs<span style="color:#f92672">.</span>sqrt()] <span style="color:#66d9ef">if</span> rhs<span style="color:#f92672">.</span>is_square() <span style="color:#66d9ef">else</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">transform</span>(X, Y, t_sqrt):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (Y <span style="color:#f92672">+</span> t_sqrt <span style="color:#f92672">*</span> X) <span style="color:#f92672">/</span> (Y <span style="color:#f92672">-</span> t_sqrt <span style="color:#f92672">*</span> X)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>flag_found <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> b <span style="color:#f92672">in</span> b_solutions:
+</span></span><span style="display:flex;"><span>    b <span style="color:#f92672">=</span> F(b)
+</span></span><span style="display:flex;"><span>    R<span style="color:#f92672">.&lt;</span>x<span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> PolynomialRing(F)
+</span></span><span style="display:flex;"><span>    f <span style="color:#f92672">=</span> x<span style="color:#f92672">^</span><span style="color:#ae81ff">3</span> <span style="color:#f92672">+</span> a<span style="color:#f92672">*</span>x <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>    roots <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>roots()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> len(roots) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> roots[<span style="color:#ae81ff">0</span>][<span style="color:#ae81ff">1</span>] <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>        double_root <span style="color:#f92672">=</span> roots[<span style="color:#ae81ff">0</span>][<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>        single_root <span style="color:#f92672">=</span> roots[<span style="color:#ae81ff">1</span>][<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        double_root <span style="color:#f92672">=</span> roots[<span style="color:#ae81ff">1</span>][<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>        single_root <span style="color:#f92672">=</span> roots[<span style="color:#ae81ff">0</span>][<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    t <span style="color:#f92672">=</span> double_root <span style="color:#f92672">-</span> single_root
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> t<span style="color:#f92672">.</span>is_square():
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    t_sqrt <span style="color:#f92672">=</span> t<span style="color:#f92672">.</span>sqrt()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Gx_shifted <span style="color:#f92672">=</span> Gx <span style="color:#f92672">-</span> double_root
+</span></span><span style="display:flex;"><span>    Qx_shifted <span style="color:#f92672">=</span> Qx <span style="color:#f92672">-</span> double_root
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Gy_cands <span style="color:#f92672">=</span> get_y_candidates(Gx, a, b)
+</span></span><span style="display:flex;"><span>    Qy_cands <span style="color:#f92672">=</span> get_y_candidates(Qx, a, b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> Gy_cands <span style="color:#f92672">or</span> <span style="color:#f92672">not</span> Qy_cands:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> Gy <span style="color:#f92672">in</span> Gy_cands:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> Qy <span style="color:#f92672">in</span> Qy_cands:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>                g <span style="color:#f92672">=</span> transform(Gx_shifted, Gy, t_sqrt)
+</span></span><span style="display:flex;"><span>                q <span style="color:#f92672">=</span> transform(Qx_shifted, Qy, t_sqrt)
+</span></span><span style="display:flex;"><span>                found_key <span style="color:#f92672">=</span> discrete_log(q, g)
+</span></span><span style="display:flex;"><span>                flag <span style="color:#f92672">=</span> long_to_bytes(int(found_key))<span style="color:#f92672">.</span>decode()
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> flag<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">&#34;wwf{&#34;</span>):
+</span></span><span style="display:flex;"><span>                    flag_found <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">except</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> flag_found:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> flag_found:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> flag_found:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Valid combination and flag found:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">b = </span><span style="color:#e6db74">{</span>b<span style="color:#e6db74">}</span><span style="color:#e6db74">, </span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Gy = </span><span style="color:#e6db74">{</span>Gy<span style="color:#e6db74">}</span><span style="color:#e6db74">, </span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Qy = </span><span style="color:#e6db74">{</span>Qy<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;flag (integer) : </span><span style="color:#e6db74">{</span>found_key<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;flag (bytes) : </span><span style="color:#e6db74">{</span>flag<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;No valid flag found.&#34;</span>)
+</span></span></code></pre></div><p>And here is the output we got:</p>
+<pre tabindex="0"><code>Valid combination and flag found:
+b = 824668140588526362183895500628724475752920839323887328536605261185064403017929521,
+Gy = 994833171224828611991343781095193268805389877233090654472710276077791906497938223,
+Qy = 2851253178006530568087097593123401181441248272753928475619032561616159636799320399
+flag (integer) : 54036191088477365498866172985658388918771443974169159843569750176754593636733
+flag (bytes) : wwf{sup3rs1ngul4r_1s0m0rph15ms!}
+</code></pre><p>There goes the flag: <strong>wwf{sup3rs1ngul4r_1s0m0rph15ms!}</strong></p>
+<hr>
+<h3 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h3>
+<ol>
+<li>Singular Curves Problems explained: <a href="https://crypto.stackexchange.com/questions/70373/why-are-singular-elliptic-curves-bad-for-crypto">The article is here</a></li>
+<li>Singular Curves Exploit: <a href="https://github.com/elikaski/ECC_Attacks/blob/main/code/ECDH%20Attacks/singular_curve.sage">Exploit is here</a></li>
+</ol>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/ctf/">CTF</a></li>
+      <li><a href="http://localhost:1313/tags/cryptography/">Cryptography</a></li>
+      <li><a href="http://localhost:1313/tags/writeups/">Writeups</a></li>
+      <li><a href="http://localhost:1313/tags/ecc/">ECC</a></li>
+      <li><a href="http://localhost:1313/tags/cyber-security/">Cyber Security</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">0xy4c1n3</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+baseURL: https://yacineallag19.github.io/0xy4c1n3/
+languageCode: en-us
+title: 0xy4c1n3
+
+module:
+  imports:
+  - path: github.com/adityatelange/hugo-PaperMod
+
+theme: ["PaperMod"]
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+# Navigation menu - only tags and categories
+menu:
+  main:
+    - identifier: tags
+      name: "Tags"
+      url: "/tags/"
+      weight: 10
+    - identifier: categories
+      name: "Categories"
+      url: "/categories/"
+      weight: 20
+
+params:
+  
+  # Favicon
+  assets:
+    favicon: "favicon.ico"
+
+  # Home page info
+  homeInfoParams:
+    Title: What's up folks
+    Content: I am Allag Ahmed Yacine, a 4th-year Software Engineering student at ESI Algiers, a CTF player with @TroJeun and a cybersecurity enthusiast, however I wouldn't call it the only IT branch I am passionate about. I have a lot of interest in many other fields, generally, anything people struggle to understand. I will be sharing here blogs about my projects, my writeups for CTF challenges and thoughts.
+  
+  # Social icons
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/yacineallag19"
+    - name: "medium"
+      url: "https://medium.com/@0xy4c1n3"
+    - name: "linkedin"
+      url: "https://www.linkedin.com/in/ahmed-yacine-allag-a22a75297"
+    - name: "email"
+      url: "mailto:ma_allag@esi.dz"
+  
+  # Optional: Show additional metadata
+  ShowTags: true
+  ShowCategories: true
+  ShowReadingTime: true
+  ShowPostNavLinks: true
