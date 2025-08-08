@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>CTF Writeups on 0xy4c1n3</title>
-    <link>http://localhost:1313/0xy4c1n3/categories/ctf-writeups/</link>
+    <link>http://localhost:1313/categories/ctf-writeups/</link>
     <description>Recent content in CTF Writeups on 0xy4c1n3</description>
     <generator>Hugo -- 0.148.2</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 08 Aug 2025 09:52:05 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/0xy4c1n3/categories/ctf-writeups/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/categories/ctf-writeups/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>WorldWide CTF “Faulty Curve” Challenge Writeup (Cryptography)</title>
-      <link>http://localhost:1313/0xy4c1n3/posts/worldwide-ctf-faulty-curve-challenge-writeup-cryptography/</link>
+      <link>http://localhost:1313/posts/worldwide-ctf-faulty-curve-challenge-writeup-cryptography/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/posts/worldwide-ctf-faulty-curve-challenge-writeup-cryptography/</guid>
+      <guid>http://localhost:1313/posts/worldwide-ctf-faulty-curve-challenge-writeup-cryptography/</guid>
       <description>&lt;hr&gt;
 &lt;p&gt;&lt;img alt=&#34;Challenge Image&#34; loading=&#34;lazy&#34; src=&#34;https://cdn-images-1.medium.com/max/1200/1*CiYOElU76D1vhNLUu1ItXg.jpeg&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;worldwide-ctf-faulty-curve-challenge-writeup-cryptography&#34;&gt;WorldWide CTF &amp;ldquo;Faulty Curve&amp;rdquo; Challenge Writeup (Cryptography)&lt;/h2&gt;

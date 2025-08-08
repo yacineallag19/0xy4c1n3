@@ -2,52 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on 0xy4c1n3</title>
-    <link>http://localhost:1313/0xy4c1n3/tags/</link>
+    <link>http://localhost:1313/tags/</link>
     <description>Recent content in Tags on 0xy4c1n3</description>
     <generator>Hugo -- 0.148.2</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 08 Aug 2025 09:52:05 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/0xy4c1n3/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Cryptography</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/cryptography/</link>
+      <link>http://localhost:1313/tags/cryptography/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/cryptography/</guid>
+      <guid>http://localhost:1313/tags/cryptography/</guid>
       <description></description>
     </item>
     <item>
       <title>CTF</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/ctf/</link>
+      <link>http://localhost:1313/tags/ctf/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/ctf/</guid>
+      <guid>http://localhost:1313/tags/ctf/</guid>
       <description></description>
     </item>
     <item>
       <title>Cyber Security</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/cyber-security/</link>
+      <link>http://localhost:1313/tags/cyber-security/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/cyber-security/</guid>
+      <guid>http://localhost:1313/tags/cyber-security/</guid>
       <description></description>
     </item>
     <item>
       <title>ECC</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/ecc/</link>
+      <link>http://localhost:1313/tags/ecc/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/ecc/</guid>
+      <guid>http://localhost:1313/tags/ecc/</guid>
       <description></description>
     </item>
     <item>
       <title>WorldWide CTF</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/worldwide-ctf/</link>
+      <link>http://localhost:1313/tags/worldwide-ctf/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/worldwide-ctf/</guid>
+      <guid>http://localhost:1313/tags/worldwide-ctf/</guid>
       <description></description>
     </item>
     <item>
       <title>Writeups</title>
-      <link>http://localhost:1313/0xy4c1n3/tags/writeups/</link>
+      <link>http://localhost:1313/tags/writeups/</link>
       <pubDate>Fri, 08 Aug 2025 09:52:05 +0100</pubDate>
-      <guid>http://localhost:1313/0xy4c1n3/tags/writeups/</guid>
+      <guid>http://localhost:1313/tags/writeups/</guid>
       <description></description>
     </item>
   </channel>
