@@ -34,7 +34,7 @@ params:
   # Home page info
   homeInfoParams:
     Title: What's up folks
-    Content: I am Allag Ahmed Yacine, a 4th-year Software Engineering student at ESI Algiers, a CTF player with @TroJeun and a cybersecurity enthusiast, however I wouldn't call it the only IT branch I am passionate about. I have a lot of interest in many other fields, generally, anything people struggle to understand. I will be sharing here blogs about my projects, my writeups for CTF challenges and thoughts.
+    Content: I am Yacine, a Software Engineering student, a CTF player with @TroJeun and a cybersecurity enthusiast. I will be sharing here blogs about my projects, my writeups for CTF challenges and thoughts.
   
   # Social icons
   socialIcons:
