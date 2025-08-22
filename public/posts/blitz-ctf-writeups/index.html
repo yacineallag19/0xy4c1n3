@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Blitz CTF 2025 writeups (All solved challenges) | Yacine&#39;s blog</title>
+<meta name="keywords" content="CTF, Cryptography, writeups, MISC, Cyber Security, Blitz CTF">
+<meta name="description" content="
+
+Introduction
+I will be covering here writeups to challenges I was able to solve in the BlitzCTF 2025:
+
+Custom RSA ( cryptography )
+Custom RSA Revenge ( cryptography )
+Fiboz ( cryptography )
+maffs ( cryptography )
+Chamber Of  Secrets ( miscellaneous )
+Hidden ( miscellaneous )
+🥶🥵🥶🥵🥶🥵 ( miscellaneous )
+
+
+Custom RSA ( cryptography )
+We were given 2 files:
+
+Custom_RSA.py
+out_4.txt
+
+Initial Analysis
+Let&rsquo;s start by reading the source code and understanding what each part does:">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/blitz-ctf-writeups/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/blitz-ctf-writeups/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Yacine&#39;s blog (Alt + H)">Yacine&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Blitz CTF 2025 writeups (All solved challenges)
+    </h1>
+    <div class="post-meta"><span title='2025-07-25 09:52:05 +0100 CET'>July 25, 2025</span>&nbsp;·&nbsp;5 min
+
+</div>
+  </header> 
+  <div class="post-content"><hr>
+<p><img alt="Challenge Image" loading="lazy" src="https://ctftime.org/media/cache/7b/b5/7bb5df82fc9891185faf9588ea436b91.png"></p>
+<h3 id="introduction"><strong>Introduction</strong><a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h3>
+<p>I will be covering here writeups to challenges I was able to solve in the BlitzCTF 2025:</p>
+<ul>
+<li>Custom RSA ( cryptography )</li>
+<li>Custom RSA Revenge ( cryptography )</li>
+<li>Fiboz ( cryptography )</li>
+<li>maffs ( cryptography )</li>
+<li>Chamber Of  Secrets ( miscellaneous )</li>
+<li>Hidden ( miscellaneous )</li>
+<li>🥶🥵🥶🥵🥶🥵 ( miscellaneous )</li>
+</ul>
+<hr>
+<h3 id="custom-rsa--cryptography-">Custom RSA ( cryptography )<a hidden class="anchor" aria-hidden="true" href="#custom-rsa--cryptography-">#</a></h3>
+<p>We were given 2 files:</p>
+<ul>
+<li><a href="https://pastebin.com/7GiPsep5">Custom_RSA.py</a></li>
+<li><a href="https://pastebin.com/VUfxUQmv">out_4.txt</a></li>
+</ul>
+<h4 id="initial-analysis">Initial Analysis<a hidden class="anchor" aria-hidden="true" href="#initial-analysis">#</a></h4>
+<p>Let&rsquo;s start by reading the source code and understanding what each part does:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>p <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">256</span>)  
+</span></span><span style="display:flex;"><span>q <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">256</span>)  
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">128</span>)  
+</span></span><span style="display:flex;"><span>y <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">128</span>)  
+</span></span><span style="display:flex;"><span>z <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">128</span>)
+</span></span></code></pre></div><p>This generates 5 primes: <code>p</code>, <code>q</code>, <code>x</code>, <code>y</code> and <code>z</code>. The information we can keep in mind is the fact that <code>x</code>, <code>y</code> and <code>z</code> are 128 bits which makes the product of each 2 of them easy to factor.</p>
+<p>Then we have:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>e <span style="color:#f92672">=</span> x<span style="color:#f92672">*</span>y<span style="color:#f92672">*</span>z
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> p<span style="color:#f92672">*</span>q<span style="color:#f92672">*</span>y
+</span></span><span style="display:flex;"><span>hint1 <span style="color:#f92672">=</span> p <span style="color:#f92672">%</span> x
+</span></span><span style="display:flex;"><span>hint2 <span style="color:#f92672">=</span> p <span style="color:#f92672">%</span> z
+</span></span></code></pre></div><p>This sets the <code>exponent</code> to the product of <code>x</code>, <code>y</code> and <code>z</code>, as well as the <code>modulus</code> to the product of <code>p</code>, <code>q</code> and <code>y</code>. We notice that <code>y</code> is a common factor, and since both <code>e</code> and <code>n</code> are products to <strong>prime facotrs</strong>, we can conclude that: <code>y = GCD(n,e)</code>.
+Last, 2 hint values are computed: <code>hint1 = p % x</code> and <code>hint2 = p % z</code>.
+Finally, the flag is encrypted, and we are given the values of <code>e</code>, <code>n</code>, <code>hint1</code>, <code>hint2</code> and <code>c</code>.</p>
+<h4 id="exploit-steps">Exploit Steps<a hidden class="anchor" aria-hidden="true" href="#exploit-steps">#</a></h4>
+<ol>
+<li>Recover <code>y</code> by computing: <code>y = GCD(n,e)</code>.</li>
+<li>Calculate <code>x*z = e // y</code> then factor the value in order to get x and z (You can factor using a script or using factordb).</li>
+<li>Recover <code>temp = p mod (x*z)</code>from <code>hint1</code> and <code>hint2</code> using CRT, then brute force all values <code>p = k * (x * z) + temp</code> till a value is a factor of <code>n</code>.</li>
+<li>Recover <code>q</code>, calculate <code>d</code> and decrypt the flag.</li>
+</ol>
+<h4 id="python-solver">Python Solver<a hidden class="anchor" aria-hidden="true" href="#python-solver">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sympy <span style="color:#f92672">import</span> gcd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> Crypto.Util.number <span style="color:#f92672">import</span> long_to_bytes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hint1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">154888122383146971967744398191123189212</span>
+</span></span><span style="display:flex;"><span>hint2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">130654136341446094800376989317102537325</span>
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> <span style="color:#ae81ff">1291778230841963634710522186531131140292748304311790700929719174642140386189828346122801056721461179519840234314280632436994655344881023892312594913853574461748121277453328656446109784054563731</span>
+</span></span><span style="display:flex;"><span>e <span style="color:#f92672">=</span> <span style="color:#ae81ff">9397905637403387422411461938505089525132522490010480161341814566119369497062528168320590767152928258571447916140517</span>
+</span></span><span style="display:flex;"><span>c <span style="color:#f92672">=</span> <span style="color:#ae81ff">482782367816881259357312883356702175242817718119063880833819462767226937212873552015335218158868462980872863563953024168114906381978834311555560455076311389674805493391941801398577027462103318</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 1: calculate y</span>
+</span></span><span style="display:flex;"><span>y <span style="color:#f92672">=</span> int(gcd(n, e))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 2: get x and z by factoring x*z</span>
+</span></span><span style="display:flex;"><span>xz <span style="color:#f92672">=</span> e <span style="color:#f92672">//</span> y
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> <span style="color:#ae81ff">205985756524450894105569840071389752521</span>
+</span></span><span style="display:flex;"><span>z <span style="color:#f92672">=</span> <span style="color:#ae81ff">212007435030018912792096086712981924541</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 3: finding p mod x*z using CRT</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">chinese_remainder</span>(h, m1, h2, m2):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inv</span>(a, m):
+</span></span><span style="display:flex;"><span>        m0, x0, x1 <span style="color:#f92672">=</span> m, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> a <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>            q <span style="color:#f92672">=</span> a <span style="color:#f92672">//</span> m
+</span></span><span style="display:flex;"><span>            a, m <span style="color:#f92672">=</span> m, a <span style="color:#f92672">%</span> m
+</span></span><span style="display:flex;"><span>            x0, x1 <span style="color:#f92672">=</span> x1 <span style="color:#f92672">-</span> q <span style="color:#f92672">*</span> x0, x0
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> x1 <span style="color:#f92672">%</span> m0
+</span></span><span style="display:flex;"><span>    M <span style="color:#f92672">=</span> m1 <span style="color:#f92672">*</span> m2
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (h <span style="color:#f92672">*</span> m2 <span style="color:#f92672">*</span> inv(m2, m1) <span style="color:#f92672">+</span> h2 <span style="color:#f92672">*</span> m1 <span style="color:#f92672">*</span> inv(m1, m2)) <span style="color:#f92672">%</span> M, M
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>p0, M <span style="color:#f92672">=</span> chinese_remainder(hint1, x, hint2, z)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 4: brute forcing till we get the correct p values</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> k <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">5</span>):
+</span></span><span style="display:flex;"><span>    p <span style="color:#f92672">=</span> p0 <span style="color:#f92672">+</span> k <span style="color:#f92672">*</span> M
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">%</span> p <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Step 5: Calculating q</span>
+</span></span><span style="display:flex;"><span>    q <span style="color:#f92672">=</span> n <span style="color:#f92672">//</span> ( p <span style="color:#f92672">*</span> y )
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Step 6: compute private exponent d and decrypt</span>
+</span></span><span style="display:flex;"><span>    phi <span style="color:#f92672">=</span> int((p<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> (q<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> (y<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        d <span style="color:#f92672">=</span> pow(e, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, phi)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">ValueError</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>    m <span style="color:#f92672">=</span> pow(c, d, n)
+</span></span><span style="display:flex;"><span>    pt <span style="color:#f92672">=</span> long_to_bytes(m)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> pt<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;Blitz&#34;</span>):
+</span></span><span style="display:flex;"><span>        print(pt)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;no candidate found&#34;</span>)
+</span></span></code></pre></div><p>There goes the flag: <strong>Blitz{H0w_D4r3_y0u_br34k_My_RSA_Ag41n!!!}</strong></p>
+<hr>
+<h3 id="custom-rsa-revenge--cryptography-">Custom RSA Revenge ( cryptography )<a hidden class="anchor" aria-hidden="true" href="#custom-rsa-revenge--cryptography-">#</a></h3>
+<p>We were given 2 files:</p>
+<ul>
+<li><a href="https://pastebin.com/j3uPtpck">crypto1.py</a></li>
+<li><a href="https://pastebin.com/k1WibHmL">crypto1_out.txt</a></li>
+</ul>
+<h4 id="initial-analysis-1">Initial Analysis<a hidden class="anchor" aria-hidden="true" href="#initial-analysis-1">#</a></h4>
+<p>Let&rsquo;s start by reading the source code and understanding what each part does:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>p <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">150</span>)
+</span></span><span style="display:flex;"><span>q <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">150</span>)
+</span></span><span style="display:flex;"><span>e <span style="color:#f92672">=</span> getPrime(<span style="color:#ae81ff">128</span>)
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> p<span style="color:#f92672">*</span>q
+</span></span></code></pre></div><p>So far seems like a usual RSA setup, let&rsquo;s continue:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>mod_phi <span style="color:#f92672">=</span> (p<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">*</span>(q<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">*</span>(e<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>d <span style="color:#f92672">=</span> pow(e, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, mod_phi)
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>print(mod_phi)
+</span></span><span style="display:flex;"><span>print(n)
+</span></span><span style="display:flex;"><span>c <span style="color:#f92672">=</span> pow(bytes_to_long(m), e, n)
+</span></span><span style="display:flex;"><span>print(c)
+</span></span></code></pre></div><p>Now we can spot the issue, <code>mod_phi</code> is easy to factor in no time, if we manage to factor it we can easily recover <code>e</code>, <code>p</code> and <code>q</code>.</p>
+<p>I used this tool: <a href="https://www.alpertron.com.ar/ECM.HTM">Factorization online tool</a>.
+It gave many factors but we will use this so we don&rsquo;t have to keep copying pasting:
+<code>381 679521 901481 226602 014060 495892 168161 810654 344421 566396 411258 375972 593287 031851 626446 898065 545609 421743 932153 327689 119440 405912 (129 digits) = 23 × 32 × 67 × 673 × 3181 × 252401 × 23 896409 × 145 028189 × 79 561224 974873 × 308 026511 504069 × 4509 599821 882817 × 9907 158782 085681 344183 × 38 588687 064594 940957 905160 665643 (32 digits)</code>.
+Using these prime factors, we will generate all possible factors, and for each factor <code>f</code> we will check if <code>f+1</code> divides <code>n</code>, then we would have the values of <code>p</code>,<code>q</code> and <code>e</code>, and we can just decrypt then.</p>
+<h4 id="python-solver-1">Python Solver<a hidden class="anchor" aria-hidden="true" href="#python-solver-1">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sympy <span style="color:#f92672">import</span> Integer
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> itertools <span style="color:#f92672">import</span> product
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> Crypto.Util.number <span style="color:#f92672">import</span> long_to_bytes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Factorization result of mod_phi</span>
+</span></span><span style="display:flex;"><span>factors <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">2</span>: <span style="color:#ae81ff">5</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">3</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">23</span>: <span style="color:#ae81ff">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">32</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">67</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">673</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">3181</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">252401</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">23896409</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">145028189</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">79561224974873</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">308026511504069</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">4509599821882817</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">9907158782085681344183</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">38588687064594940957905160665643</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Generate all divisors of mod_phi</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_divisors</span>(factors):
+</span></span><span style="display:flex;"><span>    primes <span style="color:#f92672">=</span> list(factors<span style="color:#f92672">.</span>items())
+</span></span><span style="display:flex;"><span>    exponents <span style="color:#f92672">=</span> [range(e <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">for</span> _, e <span style="color:#f92672">in</span> primes]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> powers <span style="color:#f92672">in</span> product(<span style="color:#f92672">*</span>exponents):
+</span></span><span style="display:flex;"><span>        divisor <span style="color:#f92672">=</span> Integer(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (base, _), power <span style="color:#f92672">in</span> zip(primes, powers):
+</span></span><span style="display:flex;"><span>            divisor <span style="color:#f92672">*=</span> base <span style="color:#f92672">**</span> power
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> divisor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> <span style="color:#ae81ff">1236102848705753437579242450812782858653671889829265508760569425093229541662967763302228061</span>
+</span></span><span style="display:flex;"><span>c <span style="color:#f92672">=</span> <span style="color:#ae81ff">337624956533508120294617117960499986227311117648449203609049153277315646351029821010820258</span>
+</span></span><span style="display:flex;"><span>mod_phi <span style="color:#f92672">=</span> <span style="color:#ae81ff">381679521901481226602014060495892168161810654344421566396411258375972593287031851626446898065545609421743932153327689119440405912</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 1: generate all divisors of mod_phi</span>
+</span></span><span style="display:flex;"><span>divisors <span style="color:#f92672">=</span> sorted(get_divisors(factors))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Total divisors: </span><span style="color:#e6db74">{</span>len(divisors)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 2: check if (d+1) divides n (this reveals p or q)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> d <span style="color:#f92672">in</span> divisors:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">%</span> (d <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        p <span style="color:#f92672">=</span> d <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        q <span style="color:#f92672">=</span> n <span style="color:#f92672">//</span> p
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Found factors! p = </span><span style="color:#e6db74">{</span>p<span style="color:#e6db74">}</span><span style="color:#e6db74">, q = </span><span style="color:#e6db74">{</span>q<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Step 3: recover e</span>
+</span></span><span style="display:flex;"><span>        phi <span style="color:#f92672">=</span> (p <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> (q <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        e <span style="color:#f92672">=</span> mod_phi <span style="color:#f92672">//</span> phi <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Recovered e = </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Step 4: compute private exponent d and decrypt</span>
+</span></span><span style="display:flex;"><span>        d_priv <span style="color:#f92672">=</span> pow(e, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, phi)
+</span></span><span style="display:flex;"><span>        m <span style="color:#f92672">=</span> pow(c, d_priv, n)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[+] Decrypted flag:&#34;</span>, long_to_bytes(m))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>
+</span></span></code></pre></div><p>There goes the flag: <strong>Blitz{Cust0m_RSA_OMGGG}</strong></p>
+<hr>
+<h3 id="fiboz--cryptography-">Fiboz ( cryptography )<a hidden class="anchor" aria-hidden="true" href="#fiboz--cryptography-">#</a></h3>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/ctf/">CTF</a></li>
+      <li><a href="http://localhost:1313/tags/cryptography/">Cryptography</a></li>
+      <li><a href="http://localhost:1313/tags/writeups/">Writeups</a></li>
+      <li><a href="http://localhost:1313/tags/misc/">MISC</a></li>
+      <li><a href="http://localhost:1313/tags/cyber-security/">Cyber Security</a></li>
+      <li><a href="http://localhost:1313/tags/blitz-ctf/">Blitz CTF</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/worldwide-ctf-faulty-curve-challenge-writeup-cryptography/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>WorldWide CTF “Faulty Curve” Challenge Writeup (Cryptography)</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">Yacine&#39;s blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

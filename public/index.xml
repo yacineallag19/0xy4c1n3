@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>0xy4c1n3</title>
+    <title>Yacine&#39;s blog</title>
     <link>http://localhost:1313/</link>
-    <description>Recent content on 0xy4c1n3</description>
+    <description>Recent content on Yacine&#39;s blog</description>
     <generator>Hugo -- 0.148.2</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 08 Aug 2025 09:52:05 +0100</lastBuildDate>
@@ -32,6 +32,37 @@
 &lt;hr&gt;
 &lt;h3 id=&#34;introduction&#34;&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;This write-up details the solution to the &lt;strong&gt;Faulty Curve&lt;/strong&gt; cryptography challenge from &lt;strong&gt;WorldWideCTF&lt;/strong&gt;, which exploits the &lt;strong&gt;curve&amp;rsquo;s singularity&lt;/strong&gt; to decrypt &lt;strong&gt;ECC-based ciphers&lt;/strong&gt;. We demonstrate how the singular elliptic curve vulnerability allows decryption by reducing the &lt;strong&gt;discrete logarithm problem&lt;/strong&gt; to a &lt;strong&gt;trivial&lt;/strong&gt; linear equation. This write-up will be beginner-friendly and explain everything in detail. We&amp;rsquo;ll start with how elliptic curves work, then walk through how our team solved this challenge.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Blitz CTF 2025 writeups (Cryptography)</title>
+      <link>http://localhost:1313/posts/blitz-ctf-writeups-cryptography/</link>
+      <pubDate>Fri, 25 Jul 2025 09:52:05 +0100</pubDate>
+      <guid>http://localhost:1313/posts/blitz-ctf-writeups-cryptography/</guid>
+      <description>&lt;hr&gt;
+&lt;p&gt;&lt;img alt=&#34;Challenge Image&#34; loading=&#34;lazy&#34; src=&#34;https://ctftime.org/media/cache/7b/b5/7bb5df82fc9891185faf9588ea436b91.png&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;introduction&#34;&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;I will be covering here writeups to challenges I was able to solve in the BlitzCTF 2025:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Custom RSA ( cryptography )&lt;/li&gt;
+&lt;li&gt;Custom RSA Revenge ( cryptography )&lt;/li&gt;
+&lt;li&gt;Fiboz ( cryptography )&lt;/li&gt;
+&lt;li&gt;maffs ( cryptography )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;custom-rsa&#34;&gt;&lt;strong&gt;Custom RSA&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;We were given 2 files:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/file/d/18sDZ_AOuBk6FMQotDdLhfFNOpApBxXvs/view?usp=drive_link&#34;&gt;Custom_RSA.py&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/file/d/1yxNTX9WgDRYZx99nn-TURhMn06fXXmz_/view?usp=drive_link&#34;&gt;out_4.txt&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;initial-analysis&#34;&gt;Initial Analysis&lt;/h4&gt;
+&lt;p&gt;Let&amp;rsquo;s start by reading the source code and understanding what each part does:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;p &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getPrime(&lt;span style=&#34;color:#ae81ff&#34;&gt;256&lt;/span&gt;)  
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;q &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getPrime(&lt;span style=&#34;color:#ae81ff&#34;&gt;256&lt;/span&gt;)  
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;x &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getPrime(&lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt;)  
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getPrime(&lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt;)  
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;z &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; getPrime(&lt;span style=&#34;color:#ae81ff&#34;&gt;128&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This generates 5 primes: &lt;code&gt;p&lt;/code&gt;, &lt;code&gt;q&lt;/code&gt;, &lt;code&gt;x&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt; and &lt;code&gt;z&lt;/code&gt;. The information we can keep in mind is the fact that &lt;code&gt;x&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt; and &lt;code&gt;z&lt;/code&gt; are 128 bits which makes the product of each 2 of them easy to factor.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

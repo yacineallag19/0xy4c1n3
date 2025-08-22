@@ -1,6 +1,6 @@
 baseURL: https://yacineallag19.github.io/
 languageCode: en-us
-title: 0xy4c1n3
+title: Yacine's blog
 
 module:
   imports:
@@ -33,7 +33,7 @@ params:
 
   # Home page info
   homeInfoParams:
-    Title: What's up folks
+    Title: Welcome
     Content: I am Yacine, a Software Engineering student, a CTF player with @TroJeun and a cybersecurity enthusiast. I will be sharing here blogs about my projects, my writeups for CTF challenges and thoughts.
   
   # Social icons
